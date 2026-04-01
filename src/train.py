@@ -148,9 +148,9 @@ def train(cfg: dict):
                           momentum=cfg.get("momentum", 0.99),
                           weight_decay=cfg.get("weight_decay", 0.0005))
 
-    # Scheduler
+    # Scheduler (verbose removed in PyTorch 2.4+)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='max', factor=0.5, patience=15, verbose=True)
+        optimizer, mode='max', factor=0.5, patience=15)
 
     use_weight_map = cfg.get("use_weight_map", True)
 
@@ -179,7 +179,11 @@ def train(cfg: dict):
         val_loss, val_dice, val_iou, val_acc = validate(
             model, val_loader, device, use_weight_map)
 
+        lr_before = optimizer.param_groups[0]["lr"]
         scheduler.step(val_dice)
+        lr_after = optimizer.param_groups[0]["lr"]
+        if lr_after < lr_before:
+            print(f"  ↓ LR reduced: {lr_before:.6f} → {lr_after:.6f}")
 
         # Log
         history["train_loss"].append(train_loss)

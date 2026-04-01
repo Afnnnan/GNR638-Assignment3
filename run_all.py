@@ -250,10 +250,16 @@ def main():
         generate_summary(all_results)
 
     total = time.time() - total_start
-    print(f"\n{'='*70}")
+    print(f"{'='*70}")
     print(f"  Done!  Total: {total/60:.1f} min")
     print(f"  Outputs: ./outputs/")
     print(f"{'='*70}\n")
+
+    # ---- Zip outputs for Kaggle download ----
+    if os.path.isdir("/kaggle/working") and os.path.isdir("./outputs"):
+        import shutil
+        shutil.make_archive("/kaggle/working/outputs", "zip", ".", "outputs")
+        print("✅ Outputs zipped → /kaggle/working/outputs.zip")
 
 
 if __name__ == "__main__":
