@@ -168,20 +168,23 @@ def generate_summary(all_results: dict):
     }
 
     lines = ["# U-Net Results — All Datasets\n"]
-    lines.append("| Dataset | Dice | IoU | Pixel Acc | Precision | Recall |")
-    lines.append("|---|---|---|---|---|---|")
+    lines.append("| Dataset | Dice | IoU | Pixel Acc | Precision | Recall | SEG Score |")
+    lines.append("|---|---|---|---|---|---|---|")
 
     for ds, res in all_results.items():
         if res is None:
             continue
         a = res["aggregate"]
+        seg = res.get("seg_score", {}).get("seg_score", {})
+        seg_str = f"{seg['mean']:.4f} ± {seg['std']:.4f}" if seg else "N/A"
         lines.append(
             f"| {DATASET_NAMES[ds]} | "
             f"{a['dice']['mean']:.4f} ± {a['dice']['std']:.4f} | "
             f"{a['iou']['mean']:.4f} ± {a['iou']['std']:.4f} | "
             f"{a['pixel_acc']['mean']:.4f} ± {a['pixel_acc']['std']:.4f} | "
             f"{a['precision']['mean']:.4f} ± {a['precision']['std']:.4f} | "
-            f"{a['recall']['mean']:.4f} ± {a['recall']['std']:.4f} |"
+            f"{a['recall']['mean']:.4f} ± {a['recall']['std']:.4f} | "
+            f"{seg_str} |"
         )
 
     lines.append("\n\n## Paper Comparison\n")

@@ -6,13 +6,20 @@ PyTorch implementation of [U-Net](https://arxiv.org/abs/1505.04597) (Ronneberger
 
 ## Results
 
-| Dataset | Dice | IoU | Pixel Acc | Precision | Recall |
-|---|---|---|---|---|---|
-| ISBI 2012 EM Segmentation | 0.9449 ± 0.0072 | 0.8957 ± 0.0130 | 0.9162 ± 0.0094 | 0.9599 ± 0.0093 | 0.9305 ± 0.0124 |
-| PhC-C2DH-U373 | — | — | — | — | — |
-| DIC-C2DH-HeLa | — | — | — | — | — |
+| Dataset | Dice | IoU | Pixel Acc | Precision | Recall | SEG Score |
+|---|---|---|---|---|---|---|
+| ISBI 2012 EM Segmentation | 0.9461 ± 0.0101 | 0.8978 ± 0.0181 | 0.9180 ± 0.0134 | 0.9602 ± 0.0122 | 0.9326 ± 0.0178 | N/A |
+| PhC-C2DH-U373 | 0.9630 ± 0.0228 | 0.9296 ± 0.0402 | 0.9954 ± 0.0025 | 0.9327 ± 0.0399 | 0.9964 ± 0.0056 | 0.8832 ± 0.1438 |
+| DIC-C2DH-HeLa | 0.9591 ± 0.0133 | 0.9217 ± 0.0243 | 0.9567 ± 0.0183 | 0.9534 ± 0.0235 | 0.9653 ± 0.0136 | 0.5362 ± 0.3147 |
 
-*(PhC and DIC results to be filled after training on Kaggle.)*
+### Paper Comparison (using paper's own metrics)
+
+| Dataset | Metric | Paper's Score | Our Score | Notes |
+|---|---|---|---|---|
+| ISBI 2012 | Pixel Error | **0.0611** | 0.0820 | Paper uses held-out test set; ours is val split |
+| ISBI 2012 | Rand Error | **0.0382** | 0.1748 | Same metric, different data split |
+| PhC-C2DH-U373 | SEG score | **0.9203** | 0.8832 | Instance-level Jaccard (CTC methodology) |
+| DIC-C2DH-HeLa | SEG score | **0.7756** | 0.5362 | Binary→instance via connected components |
 
 ## Project Structure
 
@@ -32,14 +39,11 @@ GNR638-Assignment3/
 │   ├── PhC-C2DH-U373_test/
 │   ├── DIC-C2DH-HeLa_train/
 │   └── DIC-C2DH-HeLa_test/
-├── outputs/                # Auto-generated: checkpoints, plots, metrics
-│   ├── isbi2012/
-│   ├── phc/
-│   ├── dic/
-│   └── combined_results.md
-├── u-net-release/          # Official Caffe implementation (from paper website)
-├── 1505.04597v1.pdf        # The paper
-└── UnetBlog.pdf            # Blog writeup
+└── outputs/                # Auto-generated: checkpoints, plots, metrics
+    ├── isbi2012/
+    ├── phc/
+    ├── dic/
+    └── combined_results.md
 ```
 
 ## Dataset Preparation
@@ -127,7 +131,7 @@ python run_all.py --smoke-test
 
 ```python
 # Clone the repo
-!git clone https://github.com/Afnnnan/GNR638-Assignment3.git
+!git clone https://YOUR_TOKEN@github.com/Afnnnan/GNR638-Assignment3.git
 %cd GNR638-Assignment3
 !pip install tifffile imagecodecs pyyaml scipy -q
 
@@ -146,7 +150,7 @@ os.environ["DATA_ROOT"] = "/kaggle/input/YOUR_DATASET_NAME"  # adjust to your Ka
 from google.colab import drive
 drive.mount('/content/drive')
 
-!git clone https://github.com/Afnnnan/GNR638-Assignment3.git
+!git clone https://YOUR_TOKEN@github.com/Afnnnan/GNR638-Assignment3.git
 %cd GNR638-Assignment3
 !pip install tifffile imagecodecs pyyaml scipy -q
 
@@ -158,7 +162,7 @@ os.environ["DATA_ROOT"] = "/content/drive/MyDrive/path/to/data"
 
 ## Architecture
 
-Faithful reproduction of the U-Net from the paper, verified against the official Caffe prototxt (`u-net-release/phseg_v5-train.prototxt`).
+Faithful reproduction of the U-Net from the paper, verified against the official Caffe prototxt.
 
 | Component | Detail |
 |---|---|
@@ -195,20 +199,21 @@ outputs/
 │   ├── predictions.png             # Input | Ground Truth | Prediction
 │   ├── prediction_overlays.png     # Predictions overlaid on inputs
 │   ├── metrics_bar_chart.png       # Dice, IoU, Acc bar chart
-│   ├── evaluation_metrics.json     # All metrics (per-image + aggregate)
+│   ├── evaluation_metrics.json     # All metrics (per-image + aggregate + ISBI metrics)
 │   ├── architecture_comparison.md  # Our PyTorch vs Caffe prototxt
 │   ├── results_comparison.md       # Our results vs paper's reported results
+│   ├── training_curves.png         # Loss and Dice curves
 │   └── training_history.json       # Loss/Dice per epoch
 ├── phc/
-│   └── ... (same structure)
+│   └── ... (same structure + SEG score)
 ├── dic/
-│   └── ... (same structure)
+│   └── ... (same structure + SEG score)
 └── combined_results.md             # Summary table across all datasets
 ```
 
 ## Comparison with Official Implementation
 
-The official implementation (`u-net-release/`) is in Caffe and was designed for Ubuntu 14.04 + MATLAB 2014b. It includes a pre-trained model for PhC-C2DH-U373 cell segmentation.
+The [official implementation](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/) is in Caffe and was designed for Ubuntu 14.04 + MATLAB 2014b. It includes a pre-trained model for PhC-C2DH-U373 cell segmentation.
 
 Our comparison approach:
 1. **Architecture**: Structural comparison verified against the Caffe prototxt (see `outputs/*/architecture_comparison.md`)
@@ -219,7 +224,7 @@ Our comparison approach:
 
 - Python 3.8+
 - PyTorch (with MPS/CUDA support)
-- tifffile, imagecodecs, scipy, numpy, matplotlib, Pillow, pyyaml, scikit-learn
+- tifffile, imagecodecs, scipy, numpy, matplotlib, Pillow, pyyaml, scikit-image
 
 Device auto-detection: CUDA → MPS → CPU (no code changes needed).
 
