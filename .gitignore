@@ -30,3 +30,8 @@ outputs/
 venv/
 .env/
 data.zip
+
+# Report (local only)
+report/
+
+temp/

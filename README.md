@@ -4,6 +4,8 @@ PyTorch implementation of [U-Net](https://arxiv.org/abs/1505.04597) (Ronneberger
 
 > **GNR 638 — Assignment 3**: Implement a paper from scratch and compare against the official implementation.
 
+For detailed methodology, experiments, figures, and discussion, refer to [report.pdf](report).
+
 ## Results
 
 | Dataset | Dice | IoU | Pixel Acc | Precision | Recall | SEG Score |
@@ -25,6 +27,7 @@ PyTorch implementation of [U-Net](https://arxiv.org/abs/1505.04597) (Ronneberger
 
 ```
 GNR638-Assignment3/
+├── report.pdf             # Final assignment report (full write-up and figures)
 ├── run_all.py              # Single entry point — train & evaluate all datasets
 ├── requirements.txt        # Python dependencies
 ├── src/
