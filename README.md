@@ -4,7 +4,7 @@ PyTorch implementation of [U-Net](https://arxiv.org/abs/1505.04597) (Ronneberger
 
 > **GNR 638 — Assignment 3**: Implement a paper from scratch and compare against the official implementation.
 
-For detailed methodology, experiments, figures, and discussion, refer to [report.pdf](report).
+For detailed methodology, experiments, figures, and discussion, refer to [report.pdf](report.pdf).
 
 ## Results
 
